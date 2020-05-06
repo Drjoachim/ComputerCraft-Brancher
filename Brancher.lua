@@ -47,6 +47,7 @@ local function initializeLocations()
 		elseif turtle.refuel(0) then
 			debug("Found fuel location"..i)
 		else
+		end
 	end
 end
 
