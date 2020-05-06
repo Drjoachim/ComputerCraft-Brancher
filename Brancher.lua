@@ -61,11 +61,11 @@ local function initializeLocations()
 		end
 	end
 	turtle.select(1)
-	logger.log("*********************Locations****************************")
-	logger.log("Found "..torchCount.." torches on these locations: "..torchLocations)
-	logger.log("Found "..chestCount.." chests on these locations: "..chestLocations)
-	logger.log("Found "..fuelCount.." fuel items on these locations: "..fuelLocations)
-	logger.log("*******************************************************")
+	logger.log("**Locations**")
+	logger.log("Found "..torchCount.." torches on these locations: "..table.concat(torchLocations,", "))
+	logger.log("Found "..chestCount.." chests on these locations: "..table.concat(chestLocations,", "))
+	logger.log("Found "..fuelCount.." fuel items on these locations: "..table.concat(fuelLocations,", "))
+	logger.log("*************")
 end
 
 --Checking
