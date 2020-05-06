@@ -96,19 +96,20 @@ local function checkFuel()
 	end
 
 end
-local function canDig(direction)
-	local bool = false
-	local detectedItem=nil
-	if direction == "up" then
-		detectedItem = turtle.
-	elseif direction =="down"
 
-	else
+-- local function canDig(direction)
+-- 	local bool = false
+-- 	local detectedItem=nil
+-- 	if direction == "up" then
+		
+-- 	elseif direction =="down" then
 
-	end
-	for i=1,16
-	return bool
-end
+-- 	else
+
+-- 	end
+-- 	for i=1,16
+-- 	return bool
+-- end
 
 
 --Mining
