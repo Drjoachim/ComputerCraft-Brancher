@@ -17,9 +17,11 @@
 --Local
 local distance = 0 -- How Far Did User Pick
 local onlight = 0 -- When to Place Torch
-local torch = turtle.getItemCount(1) -- How many items are in slot 1 (torch)
-local chest = turtle.getItemCount(2) -- How many items are in slot 2 (chest)
-local ItemFuel = turtle.getItemCount(3) -- How many items are in slot 3 (Fuel)
+
+local torchCount = 0 -- Tracks the number of torches
+local chestCount = 0 -- Tracks the number of chests
+local fuelCount = 0 -- Tracks the number of fuelItems
+
 local MD = 3 -- How Many Blocks Apart From Each Mine
 local MineTimes = 0 -- If Multi Mines Are ON then This will keep Count
 local Fuel = 0 -- if 2 then it is unlimited no fuel needed
@@ -43,15 +45,20 @@ local function initializeLocations()
 			if string.find(details.name,"torch") then
 				-- Found torch location
 				print("Found torch location "..i)
+				 torchCount = torchCount + turtle.getItemCount(i)
 			elseif string.find(details.name,"chest") then
 				print("Found chest location "..i)
+				chestCount = chestCount + turtle.getItemCount(i)
 			elseif turtle.refuel(0) then
 				print("Found fuel location "..i)
-			else
+				fuelCount = fuelCount + = turtle.getItemCount(i)
 			end
 		end
 	end
 	turtle.select(1)
+	print("Found "..torchCount.." torches.")
+	print("Found "..chestCount.." chests.")
+	print("Found "..fuelCount.." fuel items.")
 end
 
 --Checking
