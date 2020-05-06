@@ -15,8 +15,16 @@ local version = '0.05'
 -- Mabye add code that make turtle make new line of tunnels
 
 --Local
+local curX = 0
+local curZ = 0
+local curY = 0 
+
+
 local branchDepth = 0 -- How deep Did User Pick
 local branchNumber = 0 -- How many branches does the user want?
+
+local maxX = 3*branchNumber
+local maxZ = branchDepth+1
 
 local torchCount = 0 -- Tracks the number of torches
 local torchLocations = {}
@@ -29,7 +37,7 @@ local fuelLocations = {}
 
 local MD = 3 -- How Many Blocks Apart From Each Mine
 
-local emptyLocation = 0
+local emptyLocation = -1
 
 local onlight = 0 -- When to Place Torch
 local Fuel = 0 -- if 2 then it is unlimited no fuel needed
@@ -80,7 +88,7 @@ local function checkFuel()
 		logger.log("No need for fuel")
 		
 	elseif  turtle.getFuelLevel() >= totalSteps then
-		logger.log("fuel level is now "..turtle.getFuelLevel)
+		logger.log("fuel level is now "..turtle.getFuelLevel())
 		logger.log("There should be enough fuel to mine the whole branch")
 	elseif turtle.getFuelLevel() < totalSteps then
 		logger.log("No fuel enough, refueling")
@@ -91,7 +99,7 @@ local function checkFuel()
 			turtle.select(v)
 			turtle.refuel(turtle.getItemCount(v))
 			x = x + 1
-			logger.log("fuel level is now "..turtle.getFuelLevel)
+			logger.log("fuel level is now "..turtle.getFuelLevel())
 		end
 	end
 
@@ -239,20 +247,125 @@ function initializeLogger()
 end
 
 local function getNextEmptyLocation()
-	local i = 1
-	while turtle.getItemCount(i)~=0 do
-		i = i+1
+	for i= 1,16 do 
+		if turtle.getItemCount(i)==0 then 
+			emptyLocation = i
+		end
 	end
-	emptyLocation = i
+	if(emptyLocation > -1 and turtle.getItemCount(emptyLocation)>0) then
+		emptyLocation = -1
+	end
+	
 end
+
+local function goHomeAndBack()
+	logger.log("Turtle is full, going back home to unload")
+end
+
+local function dropStuffInChestIfNeeded()
+	getNextEmptyLocation()
+	if emptyLocation == -1 then
+		logger.log("Turtle is full, dropping things in a chest")
+	else
+		--logger.log("Turtle is not full")
+	end
+	
+end
+
+local function mineFU()
+	turtle.forward()
+	turtle.dig()
+	dropStuffInChestIfNeeded()
+	turtle.digUp()
+	dropStuffInChestIfNeeded()
+end
+
+local function mineFLR()
+	turtle.forward()
+	turtle.dig()
+	dropStuffInChestIfNeeded()
+	turtle.turnLeft()
+	turtle.dig()
+	dropStuffInChestIfNeeded()
+	turtle.turnRight()
+	turtle.turnRight()
+	turtle.dig()
+	dropStuffInChestIfNeeded()
+	turtle.turnLeft()
+end
+
+
 
 local function createMainHall()
 	getNextEmptyLocation()
-	logger.log("Empty location found at "..emptyLocation)
+	
+	
+
+	while curX < maxX do 
+		mineFLR()
+		curX = curX+1
+	end
+
+	turtle.digUp()
+	dropStuffInChestIfNeeded()
+	turtle.up()
+	curY=curY+1
+
+	turtle.turnLeft()
+	turtle.turnLeft()
+
+	while curX > 0 do
+		mineFLR()
+		curX=curX-1
+	end
+
+	turtle.digDown()
+	turtle.down()
+	dropStuffInChestIfNeeded()
+	curY=curY-1
+
+	--logger.log("Current location: "..curX..","..curY)
+	turtle.turnLeft()
+	turtle.turnLeft()
 end
+
+local function digBranch()
+	while curZ < maxZ do
+		mineFU()
+		curZ=curZ+1
+	end
+	turtle.turnLeft()
+	turtle.turnLeft()
+	while curZ > 0 do
+		turtle.forward()
+		curZ=curZ-1
+	end
+	
+end
+
+local function createBranchesLeft()
+	turtle.digDown()
+	turtle.down()
+	dropStuffInChestIfNeeded()
+	curY=curY-1
+	while curX < maxX do
+		mineFLR()
+		curX = curX+1
+		if curX % 3 == 0 then
+			turtle.turnLeft()
+			digBranch()
+			digBranch()
+			turtle.turnRight()
+
+		end
+	end
+end
+
+
 
 -- Start
 print("Hi There Welcome to Mining Turtle Program v"..version)
+initializeLogger()
 print("How deep should the branch mines be?")
 input = io.read()
 branchDepth = tonumber(input)
@@ -261,10 +374,15 @@ print("How many branches do you want?")
 input = io.read()
 branchNumber = tonumber(input)
 
-initializeLogger()
+maxX = 3*branchNumber
+maxZ = branchDepth+1
+logger.log("Max locations: "..maxX..","..maxZ)
+
+
 initializeLocations()
 checkFuel()
 createMainHall()
+createBranchesLeft()
 
 -- if Error == 1 then 
 -- 	repeat
