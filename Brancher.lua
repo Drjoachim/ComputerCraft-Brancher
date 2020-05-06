@@ -51,7 +51,7 @@ local function initializeLocations()
 				chestCount = chestCount + turtle.getItemCount(i)
 			elseif turtle.refuel(0) then
 				print("Found fuel location "..i)
-				fuelCount = fuelCount + = turtle.getItemCount(i)
+				fuelCount = fuelCount + turtle.getItemCount(i)
 			end
 		end
 	end
