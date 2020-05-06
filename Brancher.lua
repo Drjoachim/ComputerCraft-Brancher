@@ -1,5 +1,5 @@
 -- This Version
--- 0.02 
+-- 0.03
 -- 06/05/2020
 -- DrJoachim
 
@@ -41,11 +41,11 @@ local function initializeLocations()
 		if details ~= nil then
 			if string.find(details.name,"torch") then
 				-- Found torch location
-				debug("Found torch location"..i)
+				print("Found torch location"..i)
 			elseif string.find(details.name,"chest") then
-				debug("Found chest location"..i)
+				print("Found chest location"..i)
 			elseif turtle.refuel(0) then
-				debug("Found fuel location"..i)
+				print("Found fuel location"..i)
 			else
 			end
 		end
