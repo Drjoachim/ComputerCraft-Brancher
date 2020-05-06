@@ -42,11 +42,11 @@ local function initializeLocations()
 		if details ~= nil then
 			if string.find(details.name,"torch") then
 				-- Found torch location
-				print("Found torch location"..i)
+				print("Found torch location "..i)
 			elseif string.find(details.name,"chest") then
-				print("Found chest location"..i)
+				print("Found chest location "..i)
 			elseif turtle.refuel(0) then
-				print("Found fuel location"..i)
+				print("Found fuel location "..i)
 			else
 			end
 		end
