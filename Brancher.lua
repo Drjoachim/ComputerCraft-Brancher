@@ -29,6 +29,8 @@ local fuelLocations = {}
 
 local MD = 3 -- How Many Blocks Apart From Each Mine
 
+local emptyLocation = 0
+
 local onlight = 0 -- When to Place Torch
 local Fuel = 0 -- if 2 then it is unlimited no fuel needed
 local NeedFuel = 0 -- If Fuel Need Then 1 if not Then 0
@@ -69,7 +71,7 @@ local function initializeLocations()
 end
 
 --Checking
-local function Check()
+local function checkFuel()
 	local branchSteps = branchDepth * 2 * branchNumber
 	local mainSteps = 9 * branchNumber
 	local totalSteps = branchSteps + mainSteps
@@ -78,6 +80,7 @@ local function Check()
 		logger.log("No need for fuel")
 		
 	elseif  turtle.getFuelLevel() >= totalSteps then
+		logger.log("fuel level is now "..turtle.getFuelLevel)
 		logger.log("There should be enough fuel to mine the whole branch")
 	elseif turtle.getFuelLevel() < totalSteps then
 		logger.log("No fuel enough, refueling")
@@ -93,14 +96,20 @@ local function Check()
 	end
 
 end
+local function canDig(direction)
+	local bool = false
+	local detectedItem=nil
+	if direction == "up" then
+		detectedItem = turtle.
+	elseif direction =="down"
 
--- Recheck if user forget something turtle will check after 15 sec
-local function Recheck()
-	torch = turtle.getItemCount(1)
-	chest = turtle.getItemCount(2)
-	ItemFuel = turtle.getItemCount(3)
-	Error = 0
+	else
+
+	end
+	for i=1,16
+	return bool
 end
+
 
 --Mining
 local function ForwardM()
@@ -115,23 +124,7 @@ local function ForwardM()
 		if turtle.detectUp() then
 			turtle.digUp()
 		end
-		turtle.select(4)
-		turtle.placeDown()
-		if onlight == 8 then -- Every 10 Block turtle place torch
-			if torch > 0 then
-				turtle.turnLeft()
-				turtle.turnLeft()
-				turtle.select(1)
-				turtle.place()
-				turtle.turnLeft()
-				turtle.turnLeft()
-				torch = torch - 1
-				onlight = onlight - 8
-			else
-				print("turtle run out of torchs")
-				os.shutdown()
-			end
-		end
+
 		if turtle.getItemCount(16)>0 then -- If slot 16 in turtle has item slot 5 to 16 will go to chest
 			if chest > 0 then
 				turtle.select(2)
@@ -169,10 +162,9 @@ local function ForwardM()
 end
 
 --Warm Up For Back Program
-local function WarmUpForBackProgram() -- To make turn around so it can go back
+local function turnAround() -- To make turn around so it can go back
 	turtle.turnLeft()
 	turtle.turnLeft()
-	turtle.up()
 end
 
 --Back Program
@@ -245,6 +237,19 @@ function initializeLogger()
 	os.loadAPI("logger")
 end
 
+local function getNextEmptyLocation()
+	local i = 1
+	while turtle.getItemCount(i)~=0 do
+		i = i+1
+	end
+	emptyLocation = i
+end
+
+local function createMainHall()
+	getNextEmptyLocation()
+	logger.log("Empty location found at "..emptyLocation)
+end
+
 -- Start
 print("Hi There Welcome to Mining Turtle Program v"..version)
 print("How deep should the branch mines be?")
@@ -257,8 +262,9 @@ branchNumber = tonumber(input)
 
 initializeLogger()
 initializeLocations()
+checkFuel()
+createMainHall()
 
-Check()
 -- if Error == 1 then 
 -- 	repeat
 -- 		sleep(10)
