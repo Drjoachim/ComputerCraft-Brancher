@@ -38,14 +38,16 @@ local trash = {
 local function initializeLocations()
 	for i=1,16 do	
 		local details = turtle.getItemDetail(i);
-		if string.find(details.name,"torch") then
-			-- Found torch location
-			debug("Found torch location"..i)
-		elseif string.find(details.name,"chest") then
-			debug("Found chest location"..i)
-		elseif turtle.refuel(0) then
-			debug("Found fuel location"..i)
-		else
+		if details ~= nil then
+			if string.find(details.name,"torch") then
+				-- Found torch location
+				debug("Found torch location"..i)
+			elseif string.find(details.name,"chest") then
+				debug("Found chest location"..i)
+			elseif turtle.refuel(0) then
+				debug("Found fuel location"..i)
+			else
+			end
 		end
 	end
 end
