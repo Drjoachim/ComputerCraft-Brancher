@@ -247,6 +247,11 @@ function Start()
 	until MineTimes == 0
 end
 
+function initializeLogger()
+	pastebin get J2bF3fpf logger
+	os.loadApi("logger")
+end
+
 -- Start
 print("Hi There Welcome to Mining Turtle Program "..version)
 print("How Far Will Turtle Go")
@@ -254,6 +259,7 @@ input = io.read()
 distance = tonumber(input)
 TF = distance
 TB = distance
+intializeLogger()
 initializeLocations()
 -- print("How Many Times")
 -- input3 = io.read()
