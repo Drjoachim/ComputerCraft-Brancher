@@ -5,6 +5,9 @@
 
 -- ToDoList
 -- Refactor code
+-- Make sure turtle returns to start 
+-- Make turtle drop stuff in the main branch, not in side branches
+-- Make turtle close off the branches
 -- Add Code to place torch each time it starts
 -- Add Fuel Code so can know almost how much fuel you need
 -- Add second fuel slot if you go allout diggin
@@ -23,8 +26,36 @@ local NeedFuel = 0 -- If Fuel Need Then 1 if not Then 0
 local Error = 0 -- 0 = No Error and 1 = Error
 local Way = 0 -- 0 = Left and 1 = Right
 
+
+local trash = {
+	["minecraft:cobblestone"] = true,
+	["minecraft:dirt"] = true,
+	["minecraft:gravel"] = true,
+  }
+
+
+local function initializeLocations()
+	for i=1,16 do
+		turtle.select(i)
+		local details = turtle.getItemDetail();
+		if string.find(details.name,"torch") then
+			-- Found torch location
+			debug("Found torch location"..i)
+		elseif string.find(details.name,"chest") then
+			debug("Found chest location"..i)
+		elseif turtle.refuel(0) then
+			debug("Found fuel location"..i)
+		else
+	end
+end
+
 --Checking
 local function Check()
+
+	
+	
+
+
 	if torch == 0 then
 		print("There are no torch's in Turtle")
 		Error = 1
@@ -211,19 +242,16 @@ input = io.read()
 distance = tonumber(input)
 TF = distance
 TB = distance
-print("Left or Right")
-print("0 = Left and 1 = Right")
-input2 = io.read()
-Way = tonumber(input2)
-print("How Many Times")
-input3 = io.read()
-MineTimes = tonumber(input3)
-Check()
-if Error == 1 then 
-	repeat
-		sleep(10)
-		Recheck()
-		Check()
-	until Error == 0
-end
-Start()
+initializeLocations()
+-- print("How Many Times")
+-- input3 = io.read()
+-- MineTimes = tonumber(input3)
+-- Check()
+-- if Error == 1 then 
+-- 	repeat
+-- 		sleep(10)
+-- 		Recheck()
+-- 		Check()
+-- 	until Error == 0
+-- end
+-- Start()
