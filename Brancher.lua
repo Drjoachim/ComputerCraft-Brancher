@@ -44,21 +44,21 @@ local function initializeLocations()
 		if details ~= nil then
 			if string.find(details.name,"torch") then
 				-- Found torch location
-				print("Found torch location "..i)
+				logger.log("Found torch location "..i)
 				 torchCount = torchCount + turtle.getItemCount(i)
 			elseif string.find(details.name,"chest") then
-				print("Found chest location "..i)
+				logger.log("Found chest location "..i)
 				chestCount = chestCount + turtle.getItemCount(i)
 			elseif turtle.refuel(0) then
-				print("Found fuel location "..i)
+				logger.log("Found fuel location "..i)
 				fuelCount = fuelCount + turtle.getItemCount(i)
 			end
 		end
 	end
 	turtle.select(1)
-	print("Found "..torchCount.." torches.")
-	print("Found "..chestCount.." chests.")
-	print("Found "..fuelCount.." fuel items.")
+	logger.log("Found "..torchCount.." torches.")
+	logger.log("Found "..chestCount.." chests.")
+	logger.log("Found "..fuelCount.." fuel items.")
 end
 
 --Checking
