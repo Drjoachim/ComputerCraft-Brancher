@@ -259,7 +259,7 @@ input = io.read()
 distance = tonumber(input)
 TF = distance
 TB = distance
-intializeLogger()
+initializeLogger()
 initializeLocations()
 -- print("How Many Times")
 -- input3 = io.read()
