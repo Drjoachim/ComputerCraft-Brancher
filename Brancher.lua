@@ -37,6 +37,7 @@ local trash = {
 
 local function initializeLocations()
 	for i=1,16 do	
+		turtle.select(i)
 		local details = turtle.getItemDetail(i);
 		if details ~= nil then
 			if string.find(details.name,"torch") then
@@ -50,6 +51,7 @@ local function initializeLocations()
 			end
 		end
 	end
+	turtle.select(1)
 end
 
 --Checking
