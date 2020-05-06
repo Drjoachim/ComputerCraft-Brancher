@@ -248,7 +248,7 @@ function Start()
 end
 
 function initializeLogger()
-	pastebin get J2bF3fpf logger
+	--pastebin get J2bF3fpf logger
 	os.loadApi("logger")
 end
 
