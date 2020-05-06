@@ -36,9 +36,8 @@ local trash = {
 
 
 local function initializeLocations()
-	for i=1,16 do
-		turtle.select(i)
-		local details = turtle.getItemDetail();
+	for i=1,16 do	
+		local details = turtle.getItemDetail(i);
 		if string.find(details.name,"torch") then
 			-- Found torch location
 			debug("Found torch location"..i)
