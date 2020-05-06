@@ -7,7 +7,7 @@
 -- ToDoList
 -- Refactor code
 -- Make sure turtle returns to start 
--- Make turtle drop stuff in the main branch, not in side branches
+-- Make turtle eddrop stuff in the main branch, not in side branches
 -- Make turtle close off the branches
 -- Add Code to place torch each time it starts
 -- Add Fuel Code so can know almost how much fuel you need
@@ -28,7 +28,7 @@ local Fuel = 0 -- if 2 then it is unlimited no fuel needed
 local NeedFuel = 0 -- If Fuel Need Then 1 if not Then 0
 local Error = 0 -- 0 = No Error and 1 = Error
 local Way = 0 -- 0 = Left and 1 = Right
-local version = '0.03'
+local version = '0.04'
 
 local trash = {
 	["minecraft:cobblestone"] = true,
