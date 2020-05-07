@@ -298,9 +298,6 @@ end
 
 local function createMainHall()
 	getNextEmptyLocation()
-	
-	
-
 	while curX < maxX do 
 		mineFLR()
 		curX = curX+1
@@ -329,7 +326,9 @@ local function createMainHall()
 	turtle.turnLeft()
 end
 
-local function digBranch()
+local function digBranches()
+	turtle.turnLeft()
+	-- left branch
 	while curZ < maxZ do
 		mineFU()
 		curZ=curZ+1
@@ -340,7 +339,19 @@ local function digBranch()
 		turtle.forward()
 		curZ=curZ-1
 	end
-	
+
+	-- right branch
+	while curZ < maxZ do
+		mineFU()
+		curZ=curZ+1
+	end
+	turtle.turnLeft()
+	turtle.turnLeft()
+	while curZ > 0 do
+		turtle.forward()
+		curZ=curZ-1
+	end
+	turtle.turnRight()
 end
 
 local function createBranchesLeft()
@@ -352,10 +363,10 @@ local function createBranchesLeft()
 		mineFLR()
 		curX = curX+1
 		if curX % 3 == 0 then
-			turtle.turnLeft()
+		
 			digBranch()
 			digBranch()
-			turtle.turnRight()
+			
 
 		end
 	end
