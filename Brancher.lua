@@ -2,7 +2,7 @@
 
 -- 06/05/2020
 -- DrJoachim
-local version = '0.05'
+local version = '0.06'
 
 -- ToDoList
 -- Refactor code
