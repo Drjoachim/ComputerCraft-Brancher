@@ -15,10 +15,11 @@ local version = '0.05'
 -- Mabye add code that make turtle make new line of tunnels
 
 --Local
-local curX = 0
+local curX = -1  -- you start before the main hall 
 local curZ = 0
 local curY = 0 
 
+local debug = false
 
 local branchDepth = 0 -- How deep Did User Pick
 local branchNumber = 0 -- How many branches does the user want?
@@ -50,6 +51,9 @@ local trash = {
 	["minecraft:cobblestone"] = true,
 	["minecraft:dirt"] = true,
 	["minecraft:gravel"] = true,
+	["minecraft:andesite"]=true,
+	["minecraft:diorite"]=true,
+	["minecraft:granite"]=true
   }
 
 
@@ -105,140 +109,67 @@ local function checkFuel()
 
 end
 
--- local function canDig(direction)
--- 	local bool = false
--- 	local detectedItem=nil
--- 	if direction == "up" then
-		
--- 	elseif direction =="down" then
-
--- 	else
-
--- 	end
--- 	for i=1,16
--- 	return bool
--- end
 
 
---Mining
-local function ForwardM()
-	repeat
-		if turtle.detect() then
-			turtle.dig()
+local function getNextChest()
+	local chestLocId = 0
+	local i = 1
+	while chestLocId == 0 and i <= #chestLocations do
+		if turtle.getItemCount(chestLocations[i]) > 0 then
+			chestLocId = chestLocations[i]
 		end
-		if turtle.forward() then -- sometimes sand and gravel and block and mix-up distance
-			TF = TF - 1
-			onlight = onlight + 1
-		end
-		if turtle.detectUp() then
-			turtle.digUp()
-		end
-
-		if turtle.getItemCount(16)>0 then -- If slot 16 in turtle has item slot 5 to 16 will go to chest
-			if chest > 0 then
-				turtle.select(2)
-				turtle.digDown()
-				turtle.placeDown()
-				chest = chest - 1
-				for slot = 5, 16 do
-					turtle.select(slot)
-					turtle.dropDown()
-					sleep(1.5)
-				end
-				turtle.select(5)
-			else
-				print("turtle run out of chest")
-				os.shutdown()
-			end
-		end
-		repeat
-			if turtle.getFuelLevel() == "unlimited" then 
-				print("NO NEED FOR FUEL")
-				Needfuel = 0
-			elseif turtle.getFuelLevel() < 100 then
-				turtle.select(3)
-				turtle.refuel(1)
-				Needfuel = 1
-				ItemFuel = ItemFuel - 1
-			elseif ItemFuel == 0 then
-				print("turtle run out of fuel")
-				os.shutdown()
-			elseif NeedFuel == 1 then
-				Needfuel = 0
-			end
-		until NeedFuel == 0
-	until TF == 0
+		i = i+1
+	end
+	logger.log("Chestlocation found at "..chestLocId)
+	return chestLocId
 end
 
---Warm Up For Back Program
-local function turnAround() -- To make turn around so it can go back
-	turtle.turnLeft()
-	turtle.turnLeft()
+local function getNextTorch()
+	local torchLocId = 0
+	local i = 1
+	while torchLocId == 0 and i <= #torchLocations do
+		if turtle.getItemCount(torchLocations[i]) > 0 then
+			torchLocId = torchLocations[i]
+		end
+		i = i+1
+	end
+	logger.log("Torchlocation found at "..torchLocId)
+	return torchLocId
 end
 
---Back Program
-local function Back()
-	repeat
-		if turtle.forward() then -- sometimes sand and gravel and block and mix-up distance
-			TB = TB - 1
-		end
-		if turtle.detect() then -- Sometimes sand and gravel can happen and this will fix it
-			if TB ~= 0 then
-				turtle.dig()
-			end
-		end
-	until TB == 0
-end
 
--- Multimines Program
-local function MultiMines()
-	if Way == 1 then
-		turtle.turnLeft()
+local function placeChestDown()
+	local tempY = curY
+	while curY > -1 do
+		turtle.digDown()
 		turtle.down()
-	else
-		turtle.turnRight()
-		turtle.down()
+		curY = curY -1
 	end
-	repeat
-		if turtle.detect() then
-			turtle.dig()
-		end
-		if turtle.forward() then
-			MD = MD - 1
-		end
-		if turtle.detectUp() then
-			turtle.digUp()
-		end
-	until MD == 0
-	if Way == 1 then
-		turtle.turnLeft()
+	
+	turtle.digDown()
+	turtle.select(getNextChest())
+	turtle.placeDown()
+	chestCount = chestCount - 1
+	if chestCount == 0 then
+		logger.log("Turtle ran out of chests")
 	else
-		turtle.turnRight()
+		logger.log("Chest placed, turtle has "..chestCount.." chests left.")
 	end
-	if MineTimes == 0 then
-		print("Turtle is done")
-	else
-		MineTimes = MineTimes - 1
-	end
-end
 
--- Restart 
-local function Restart()
-	TF = distance
-	TB = distance
-	MD = 3
-	onlight = 0
-end
+	for i=1,16 do
+		if turtle.getItemCount(i)>0 then
+			turtle.select(i)
+			if not (string.find(turtle.getItemDetail(i).name,"chest") or string.find(turtle.getItemDetail(i).name,"torch") or turtle.refuel(0)) then 
+				turtle.dropDown()
+			end
+		end
+	end
 
--- Starting 
-function Start()
-	repeat
-		ForwardM()
-		WarmUpForBackProgram()
-		Back()
-		MultiMines()
-		Restart()
-	until MineTimes == 0
+	turtle.select(1)
+	while curY < tempY do
+		turtle.up()
+		curY = curY + 1
+	end
 end
 
 function initializeLogger()
@@ -262,37 +193,81 @@ local function goHomeAndBack()
 	logger.log("Turtle is full, going back home to unload")
 end
 
-local function dropStuffInChestIfNeeded()
+local function dropAllOresInChest()
+
+end
+
+local function checkInventory()
 	getNextEmptyLocation()
 	if emptyLocation == -1 then
-		logger.log("Turtle is full, dropping things in a chest")
+		logger.log("[INV] - Turtle is full, dropping trash")
+		for i=1,16 do
+			if trash[turtle.getItemDetail(i).name] then
+				logger.log("[INV] - "..turtle.getItemDetail(i).name.." marked as trash, dropping...")
+				turtle.select(i)
+				turtle.drop()
+			else 
+				logger.log("[INV] - "..turtle.getItemDetail(i).name.." not marked as trash, keeping it...")
+			end
+		end
+		getNextEmptyLocation()
+		if emptyLocation == -1 then
+			logger.log("[INV] - Turtle is full of usefull things, putting ores in a chests")
+			placeChestDown()
+			
+			
+			
+		end
+		if debug then io.read() end
 	else
 		--logger.log("Turtle is not full")
 	end
-	
+	turtle.select(1)
 end
+
 
 local function mineFU()
 	turtle.forward()
 	turtle.dig()
-	dropStuffInChestIfNeeded()
+	checkInventory()
 	turtle.digUp()
-	dropStuffInChestIfNeeded()
+	checkInventory()
 end
 
-local function mineFLR()
+local function placeTorch()
+	logger.log("Placing torch at "..curX)
+	turtle.select(getNextTorch())
+	turtle.place()
+	torchCount = torchCount - 1
+	if torchCount == 0 then
+		logger.log("Turtle ran out of torches, will continue in the dark... (scary)")
+	else
+		logger.log("Torch placed, turtle has "..torchCount.." torches left.")
+	end
+	turtle.select(1)
+end
+
+local function mineFLR(torch)
 	turtle.forward()
 	turtle.dig()
-	dropStuffInChestIfNeeded()
+	checkInventory()
 	turtle.turnLeft()
 	turtle.dig()
-	dropStuffInChestIfNeeded()
+	if curX % 8 == 0 and torchCount > 0 and torch then
+		placeTorch()
+	end
+	checkInventory()
 	turtle.turnRight()
 	turtle.turnRight()
 	turtle.dig()
-	dropStuffInChestIfNeeded()
+	if curX % 8 == 0  and torchCount > 0 and torch then
+		placeTorch()
+	end
+	checkInventory()
 	turtle.turnLeft()
 end
+
+
 
 
 
@@ -304,7 +279,7 @@ local function createMainHall()
 	end
 
 	turtle.digUp()
-	dropStuffInChestIfNeeded()
+	checkInventory()
 	turtle.up()
 	curY=curY+1
 
@@ -312,19 +287,27 @@ local function createMainHall()
 	turtle.turnLeft()
 
 	while curX > 0 do
-		mineFLR()
+		mineFLR(true)
 		curX=curX-1
 	end
 
 	turtle.digDown()
 	turtle.down()
-	dropStuffInChestIfNeeded()
+	checkInventory()
 	curY=curY-1
 
-	--logger.log("Current location: "..curX..","..curY)
+	logger.log("[Hall] - Back home: current location: "..curX..","..curY)
+
 	turtle.turnLeft()
 	turtle.turnLeft()
+
+	if chestCount > 0 then
+		placeChestDown()
+	end
 end
+
+
+
 
 local function digBranches()
 	turtle.turnLeft()
@@ -354,22 +337,39 @@ local function digBranches()
 	turtle.turnRight()
 end
 
-local function createBranchesLeft()
-	turtle.digDown()
-	turtle.down()
-	dropStuffInChestIfNeeded()
-	curY=curY-1
+local function createBranches()
+	while curY > -1 do
+		turtle.digDown()
+		checkInventory()
+		turtle.down()
+		curY = curY -1
+	end
+
 	while curX < maxX do
 		mineFLR()
 		curX = curX+1
-		if curX % 3 == 0 then
-		
-			digBranch()
-			digBranch()
-			
-
+		if curX % 3 == 0 then	
+			digBranches()
 		end
 	end
+end
+
+local function returnHome()
+	turtle.turnLeft()
+	turtle.turnLeft()
+	while curX > 0 do
+		turtle.forward()
+		curX = curX -1
+	end
+	while curY < 0 do
+		turtle.up()
+		curY = curY +1
+	end
+	while curY > 0 do
+		turtle.down()
+		curY = curY -1
+	end
+	logger.log("Back home: current location: "..curX..","..curY)
 end
 
 
@@ -385,21 +385,49 @@ print("How many branches do you want?")
 input = io.read()
 branchNumber = tonumber(input)
 
+print("Do you want to debug (y/n)?")
+input = io.read()
+while input ~= 'y' and input ~= 'n' do
+	print("Do you want to debug (y/n)?")
+	input = io.read()
+end
+if input=='y' then
+	debug = true
+elseif input =='n' then
+	debug = false
+else
+	logger.log("error","Faulty response: this can never happen")
+	io.read()
+end
+
+
 maxX = 3*branchNumber
 maxZ = branchDepth+1
-logger.log("Max locations: "..maxX..","..maxZ)
+logger.log("[MAIN] - Max locations: "..maxX..","..maxZ)
 
-
+logger.log("[MAIN] - Initializing Locations...")
 initializeLocations()
+logger.log("[MAIN] - Locations initailized, press any key to continue")
+if debug then io.read() end
+logger.log("[MAIN] - Checking fuel...")
 checkFuel()
+logger.log("[MAIN] - Checked fuel, press any key to continue")
+if debug then io.read() end
+logger.log("[MAIN] - Creating main hall... starting at location "..curX..","..curY)
 createMainHall()
-createBranchesLeft()
-
--- if Error == 1 then 
--- 	repeat
--- 		sleep(10)
--- 		Recheck()
--- 		Check()
--- 	until Error == 0
--- end
--- Start()
+logger.log("[MAIN] - Main hall created, press any key to continue")
+if debug then io.read() end
+logger.log("[MAIN] - Creating branches...")
+createBranches()
+logger.log("[MAIN] - Branches created, press any key to continue")
+if debug then io.read() end
+logger.log("[MAIN] - Returning home...")
+returnHome()
+logger.log("[MAIN] - Returned home, press any key to continue")
+if debug then io.read() end
+turtle.down()
+for i=1,16 do
+	turtle.select(i)
+	turtle.dropDown()
+end
+turtle.select(1)
