@@ -4,6 +4,9 @@
 -- DrJoachim
 local version = '0.06'
 
+-- Issues
+-- If torches are not placable it still deducts them
+
 -- ToDoList
 -- Refactor code
 -- Make sure turtle returns to start 
@@ -172,9 +175,11 @@ local function placeChestDown()
 	end
 end
 
-function initializeLogger()
+function initializeAPIs()
 	--pastebin get J2bF3fpf logger
 	os.loadAPI("logger")
+	os.loadAPI("robustTurtle")
+	
 end
 
 local function getNextEmptyLocation()
@@ -197,26 +202,27 @@ local function dropAllOresInChest()
 
 end
 
+local function dropTrash()
+	for i=1,16 do
+		if trash[turtle.getItemDetail(i).name] then
+			logger.log("[INV] - "..turtle.getItemDetail(i).name.." marked as trash, dropping...")
+			turtle.select(i)
+			turtle.drop()
+		else 
+			logger.log("[INV] - "..turtle.getItemDetail(i).name.." not marked as trash, keeping it...")
+		end
+	end
+end
+
 local function checkInventory()
 	getNextEmptyLocation()
 	if emptyLocation == -1 then
 		logger.log("[INV] - Turtle is full, dropping trash")
-		for i=1,16 do
-			if trash[turtle.getItemDetail(i).name] then
-				logger.log("[INV] - "..turtle.getItemDetail(i).name.." marked as trash, dropping...")
-				turtle.select(i)
-				turtle.drop()
-			else 
-				logger.log("[INV] - "..turtle.getItemDetail(i).name.." not marked as trash, keeping it...")
-			end
-		end
+		dropTrash()
 		getNextEmptyLocation()
 		if emptyLocation == -1 then
 			logger.log("[INV] - Turtle is full of usefull things, putting ores in a chests")
 			placeChestDown()
-			
-			
-			
 		end
 		if debug then io.read() end
 	else
@@ -267,10 +273,6 @@ local function mineFLR(torch)
 	turtle.turnLeft()
 end
 
-
-
-
-
 local function createMainHall()
 	getNextEmptyLocation()
 	while curX < maxX do 
@@ -302,12 +304,10 @@ local function createMainHall()
 	turtle.turnLeft()
 
 	if chestCount > 0 then
+		dropTrash()
 		placeChestDown()
 	end
 end
-
-
-
 
 local function digBranches()
 	turtle.turnLeft()
@@ -321,6 +321,9 @@ local function digBranches()
 	while curZ > 0 do
 		turtle.forward()
 		curZ=curZ-1
+		if curZ % 8 == 0 and torchCount > 0  then
+			placeTorch()
+		end
 	end
 
 	-- right branch
@@ -333,6 +336,9 @@ local function digBranches()
 	while curZ > 0 do
 		turtle.forward()
 		curZ=curZ-1
+		if curZ % 8 == 0 and torchCount > 0  then
+			placeTorch()
+		end
 	end
 	turtle.turnRight()
 end
@@ -376,7 +382,7 @@ end
 
 -- Start
 print("Hi There Welcome to Mining Turtle Program v"..version)
-initializeLogger()
+initializeAPIs()
 print("How deep should the branch mines be?")
 input = io.read()
 branchDepth = tonumber(input)
