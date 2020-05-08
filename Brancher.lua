@@ -2,7 +2,7 @@
 
 -- 06/05/2020
 -- DrJoachim
-local version = '0.06'
+local version = '0.10'
 
 -- Issues
 -- If torches are not placable it still deducts them
@@ -240,10 +240,14 @@ local function mineFU()
 	checkInventory()
 end
 
-local function placeTorch()
+local function placeTorch(direction)
 	logger.log("Placing torch at "..curX)
 	turtle.select(getNextTorch())
-	turtle.place()
+	if direction == "down" then
+		turtle.placeDown()
+	else 
+		turtle.place()
+	end
 	torchCount = torchCount - 1
 	if torchCount == 0 then
 		logger.log("Turtle ran out of torches, will continue in the dark... (scary)")
@@ -322,7 +326,7 @@ local function digBranches()
 		turtle.forward()
 		curZ=curZ-1
 		if curZ % 8 == 0 and torchCount > 0  then
-			placeTorch()
+			placeTorch("down")
 		end
 	end
 
@@ -337,7 +341,7 @@ local function digBranches()
 		turtle.forward()
 		curZ=curZ-1
 		if curZ % 8 == 0 and torchCount > 0  then
-			placeTorch()
+			placeTorch("down")
 		end
 	end
 	turtle.turnRight()
