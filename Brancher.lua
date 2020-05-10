@@ -2,7 +2,7 @@
 
 -- 06/05/2020
 -- DrJoachim
-local version = '0.10'
+local version = '0.11'
 
 -- Issues
 -- If torches are not placable it still deducts them
@@ -144,12 +144,12 @@ end
 local function placeChestDown()
 	local tempY = curY
 	while curY > -1 do
-		turtle.digDown()
-		turtle.down()
+		robustTurtle.digDown()
+		robustTurtle.down()
 		curY = curY -1
 	end
 	
-	turtle.digDown()
+	robustTurtle.digDown()
 	turtle.select(getNextChest())
 	turtle.placeDown()
 	chestCount = chestCount - 1
@@ -170,7 +170,7 @@ local function placeChestDown()
 
 	turtle.select(1)
 	while curY < tempY do
-		turtle.up()
+		robustTurtle.up()
 		curY = curY + 1
 	end
 end
@@ -204,11 +204,11 @@ end
 
 local function dropTrash()
 	for i=1,16 do
-		if trash[turtle.getItemDetail(i).name] then
+		if turtle.getItemCount(i) > 0 and trash[turtle.getItemDetail(i).name] then
 			logger.log("[INV] - "..turtle.getItemDetail(i).name.." marked as trash, dropping...")
 			turtle.select(i)
 			turtle.drop()
-		else 
+		elseif turtle.getItemCount(i) > 0 then
 			logger.log("[INV] - "..turtle.getItemDetail(i).name.." not marked as trash, keeping it...")
 		end
 	end
@@ -231,20 +231,13 @@ local function checkInventory()
 	turtle.select(1)
 end
 
-
-local function mineFU()
-	turtle.forward()
-	turtle.dig()
-	checkInventory()
-	turtle.digUp()
-	checkInventory()
-end
-
 local function placeTorch(direction)
 	logger.log("Placing torch at "..curX)
 	turtle.select(getNextTorch())
 	if direction == "down" then
 		turtle.placeDown()
+	elseif direction == "up" then
+		turtle.placeUp()
 	else 
 		turtle.place()
 	end
@@ -257,19 +250,30 @@ local function placeTorch(direction)
 	turtle.select(1)
 end
 
+local function mineFU()
+	robustTurtle.forward()
+	robustTurtle.dig()
+	checkInventory()
+	robustTurtle.digUp()
+	checkInventory()
+	if (curZ % 8 == 0 or curZ==maxZ-1) and torchCount > 0  then
+		placeTorch("up")
+	end
+end
+
 local function mineFLR(torch)
-	turtle.forward()
-	turtle.dig()
+	robustTurtle.forward()
+	robustTurtle.dig()
 	checkInventory()
 	turtle.turnLeft()
-	turtle.dig()
+	robustTurtle.dig()
 	if curX % 8 == 0 and torchCount > 0 and torch then
 		placeTorch()
 	end
 	checkInventory()
 	turtle.turnRight()
 	turtle.turnRight()
-	turtle.dig()
+	robustTurtle.dig()
 	if curX % 8 == 0  and torchCount > 0 and torch then
 		placeTorch()
 	end
@@ -284,9 +288,9 @@ local function createMainHall()
 		curX = curX+1
 	end
 
-	turtle.digUp()
+	robustTurtle.digUp()
 	checkInventory()
-	turtle.up()
+	robustTurtle.up()
 	curY=curY+1
 
 	turtle.turnLeft()
@@ -297,8 +301,8 @@ local function createMainHall()
 		curX=curX-1
 	end
 
-	turtle.digDown()
-	turtle.down()
+	robustTurtle.digDown()
+	robustTurtle.down()
 	checkInventory()
 	curY=curY-1
 
@@ -323,11 +327,8 @@ local function digBranches()
 	turtle.turnLeft()
 	turtle.turnLeft()
 	while curZ > 0 do
-		turtle.forward()
-		curZ=curZ-1
-		if curZ % 8 == 0 and torchCount > 0  then
-			placeTorch("down")
-		end
+		robustTurtle.forward()
+		curZ=curZ-1	
 	end
 
 	-- right branch
@@ -338,20 +339,17 @@ local function digBranches()
 	turtle.turnLeft()
 	turtle.turnLeft()
 	while curZ > 0 do
-		turtle.forward()
+		robustTurtle.forward()
 		curZ=curZ-1
-		if curZ % 8 == 0 and torchCount > 0  then
-			placeTorch("down")
-		end
 	end
 	turtle.turnRight()
 end
 
 local function createBranches()
 	while curY > -1 do
-		turtle.digDown()
+		robustTurtle.digDown()
 		checkInventory()
-		turtle.down()
+		robustTurtle.down()
 		curY = curY -1
 	end
 
@@ -368,15 +366,15 @@ local function returnHome()
 	turtle.turnLeft()
 	turtle.turnLeft()
 	while curX > 0 do
-		turtle.forward()
+		robustTurtle.forward()
 		curX = curX -1
 	end
 	while curY < 0 do
-		turtle.up()
+		robustTurtle.up()
 		curY = curY +1
 	end
 	while curY > 0 do
-		turtle.down()
+		robustTurtle.down()
 		curY = curY -1
 	end
 	logger.log("Back home: current location: "..curX..","..curY)
@@ -435,7 +433,7 @@ logger.log("[MAIN] - Returning home...")
 returnHome()
 logger.log("[MAIN] - Returned home, press any key to continue")
 if debug then io.read() end
-turtle.down()
+robustTurtle.down()
 for i=1,16 do
 	turtle.select(i)
 	turtle.dropDown()
